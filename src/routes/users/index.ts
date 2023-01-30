@@ -25,7 +25,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       const {id} = request.params;
       const fixedId = id.toLowerCase().trim();
       const findedUser = await this.db.users.findOne({key:'id', equals:fixedId })
-      if (findedUser === null) reply.notFound('Post not found');
+      if (findedUser === null) reply.notFound('User not found');
       return findedUser as UserEntity
     }
   );
