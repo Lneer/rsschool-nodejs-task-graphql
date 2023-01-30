@@ -54,7 +54,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
               const id = request.body.variables?.id as string
               const fixedId = id.toLowerCase().trim();
 
-              const profile = await this.db.profiles.findOne({key:'id', equals: fixedId})
+              const profile = await this.db.profiles.findOne({key:'id', equals: fixedId}) as ProfileEntity
               const post = await this.db.posts.findOne({key:'id', equals: fixedId})
               const memberType = await this.db.memberTypes.findOne({key:'id', equals: fixedId}) as MemberTypeEntity
               const user = await this.db.users.findOne({key:'id', equals: fixedId})
@@ -81,6 +81,19 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
               return await this.db.users.create({firstName,lastName,email}) as UserEntity
             }
           },
+          patchUser: {
+            type: UserType,
+            args: {
+              id: {type: GraphQLID!},
+              firstName: {type: GraphQLString},
+              lastName: {type: GraphQLString},
+              email: {type: GraphQLString},
+            },
+            resolve: async(parent, args,ctx,info) => {
+              const id = args.id as string
+              return await this.db.users.change(id,{... request.body.variables}) as UserEntity
+            }
+          },
           createPost: {
             type: PostType,
             args: {
@@ -93,6 +106,20 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
               const content = request.body.variables?.content as string
               const userId = request.body.variables?.userId as string
               return await this.db.posts.create({title,content,userId}) as PostEntity
+            }
+          },
+
+          patchPost: {
+            type: PostType,
+            args: {
+              id: {type: GraphQLID!},
+              title: {type: GraphQLString},
+              content: {type: GraphQLString},
+              userId: {type: GraphQLID},
+            },
+            resolve: async(parent, args,ctx,info) => {
+              const id = args.id as string
+              return await this.db.posts.change(id,{... request.body.variables}) as PostEntity
             }
           },
           createProfile: {
@@ -117,6 +144,24 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
               const userId = request.body.variables?.userId as string
               const memberTypeId = request.body.variables?.memberTypeId as string
               return await this.db.profiles.create({avatar,sex,birthday,country,street,city,userId,memberTypeId  }) as ProfileEntity
+            }
+          },
+          patchProfile: {
+            type: ProfileType,
+            args: {
+              id: {type: GraphQLID!},
+              avatar: {type: GraphQLString},
+              sex: {type: GraphQLString},
+              birthday: {type: GraphQLInt},
+              country: {type: GraphQLString},
+              street: {type: GraphQLString},
+              city: {type: GraphQLString},
+              userId: {type: GraphQLID},
+              memberTypeId: {type: GraphQLID},
+            },
+            resolve: async(parent, args,ctx,info) => {
+              const id = args.id as string
+              return await this.db.profiles.change(id,{...request.body.variables }) as ProfileEntity
             }
           },
         })
